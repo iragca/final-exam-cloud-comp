@@ -31,7 +31,7 @@ class DataStorage:
         """
         try:
             with self.engine.connect() as connection:
-                QUERY = f"SELECT * FROM {table_name}"
+                QUERY = f"SELECT * FROM {table_name.lower()}"
                 result = connection.execute(text(QUERY))
                 return pl.DataFrame(result.fetchall())
         except Exception as e:
