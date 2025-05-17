@@ -4,8 +4,8 @@ import polars as pl
 from tqdm import tqdm
 from typer import Typer
 
-from src.config import EXTERNAL_DATA_DIR, STAGING_DATABASE_URL, logger
-from src.data import Staging
+from src.config import EXTERNAL_DATA_DIR, STAGING_DATABASE_URL, WAREHOUSE_DATABASE_URL, logger
+from src.data import Staging, Warehouse
 
 cli = Typer()
 
@@ -61,7 +61,43 @@ def drop_staging():
 
 @cli.command()
 def move_to_data_warehouse():
-    pass
+    STAGING = Staging(STAGING_DATABASE_URL)
+    WAREHOUSE = Warehouse(WAREHOUSE_DATABASE_URL)
+
+    cust_info = STAGING.get_table("cust_info")
+    prd_info = STAGING.get_table("prd_info")
+
+    @WAREHOUSE.preprocess_and_load()
+    def process_cust_info(cust_info: pl.DataFrame, table_name: str = "cust_info"):
+        return (
+            cust_info.unique()
+            .drop_nulls()
+            .with_columns(
+                [
+                    pl.col("cst_gndr").cast(pl.Categorical),
+                    pl.col("cst_marital_status").cast(pl.Categorical),
+                    pl.col("cst_create_date").cast(pl.Date),
+                ]
+            )
+        )
+
+    @WAREHOUSE.preprocess_and_load()
+    def process_prd_info(prd_info: pl.DataFrame, table_name: str = "prd_info"):
+        return (
+            prd_info.unique()
+            .drop_nulls()
+            .with_columns(
+                [
+                    pl.col("prd_line").cast(pl.Categorical),
+                    pl.col("prd_start_dt").cast(pl.Date),
+                    pl.col("prd_end_dt").cast(pl.Date),
+                ]
+            )
+        )
+
+    process_cust_info(cust_info, table_name="cust_info")
+    process_prd_info(prd_info, table_name="prd_info")
+    logger.success("Data preprocessed and loaded to warehouse successfully.")
 
 
 @cli.command()
