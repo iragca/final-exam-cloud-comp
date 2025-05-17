@@ -11,6 +11,7 @@ my-project/
 ├── src/                   # Source code
 │   ├── __init__.py
 │   ├── config/            # Environment variables setup
+│   ├── utils/             # Utility functions
 │   └── data/
 │       ├── datastorage.py # Base "data storage" class
 │       ├── staging.py     # Staging functionalities class
@@ -50,3 +51,5 @@ uv run main.py <command>
 | Command        | Description |
 |----------------|-------------|
 | move-to-data-warehouse | Preprocess staging data and move to data warehouse |
+| read-warehouse   | Print table names, and column details to the terminal |
+| drop-warehouse   | Drop every table in the data warehouse |

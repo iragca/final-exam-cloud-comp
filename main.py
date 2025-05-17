@@ -61,7 +61,7 @@ def read_staging():
 @cli.command()
 def drop_staging():
     STAGING = Staging(STAGING_DATABASE_URL)
-    STAGING.delete_all_tables()
+    STAGING.drop_all_tables()
     logger.success("All tables in staging dropped successfully.")
 
 
@@ -166,7 +166,7 @@ def read_warehouse():
 @cli.command()
 def drop_warehouse():
     WAREHOUSE = Warehouse(WAREHOUSE_DATABASE_URL)
-    WAREHOUSE.delete_all_tables()
+    WAREHOUSE.drop_all_tables()
     logger.success("All tables in warehouse dropped successfully.")
 
 
