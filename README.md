@@ -44,3 +44,9 @@ uv run main.py <command>
 | move-to-staging| Move the raw data to a staging database |
 | read-staging   | Print table names, and column details to the terminal |
 | drop-staging   | Drop every table in the staging database |
+
+## Warehouse Commands
+
+| Command        | Description |
+|----------------|-------------|
+| move-to-data-warehouse | Preprocess staging data and move to data warehouse |
