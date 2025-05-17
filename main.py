@@ -62,7 +62,7 @@ def read_staging():
 def drop_staging():
     STAGING = Staging(STAGING_DATABASE_URL)
     STAGING.delete_all_tables()
-    logger.success("All tables dropped successfully.")
+    logger.success("All tables in staging dropped successfully.")
 
 
 @cli.command()
@@ -148,6 +148,26 @@ def move_to_data_warehouse():
     process_loc_a101(loc_a101, table_name="loc_a101")
     process_px_cat_g1v2(px_cat_g1v2, table_name="px_cat_g1v2")
     logger.success("Data preprocessed and loaded to warehouse successfully.")
+
+
+@cli.command()
+def read_warehouse():
+    WAREHOUSE = Warehouse(WAREHOUSE_DATABASE_URL)
+    tables = WAREHOUSE.get_table_names()
+    print("TABLES: ", tables, len(tables))
+
+    for table in tables:
+        table_info = WAREHOUSE.get_table_info(table)
+        print(f"{table}: ")
+        print("=" * 20)
+        pprint(table_info)
+
+
+@cli.command()
+def drop_warehouse():
+    WAREHOUSE = Warehouse(WAREHOUSE_DATABASE_URL)
+    WAREHOUSE.delete_all_tables()
+    logger.success("All tables in warehouse dropped successfully.")
 
 
 @cli.command()
