@@ -172,8 +172,26 @@ def drop_warehouse():
 
 
 @cli.command()
-def start_streamlit():
-    subprocess.run(["streamlit", "run", "dashboard.py"])
+def start_streamlit(port: int = 8501, host: str = "0.0.0.0"):
+    """
+    Start the Streamlit dashboard on a specified host and port.
+
+    This CLI command builds a command-line instruction to run `streamlit run dashboard.py`
+    with optional host and port arguments, then executes it using `subprocess.run`.
+
+    Args:
+        port (int): Port to serve the Streamlit app on (default: 8501).
+        host (str): Host IP address to bind the server to (default: "0.0.0.0").
+    """
+    process = ["streamlit", "run", "dashboard.py"]
+
+    if port:
+        process += ["--server.port", str(port)]
+
+    if host:
+        process += ["--server.address", host]
+
+    subprocess.run(process)
 
 
 if __name__ == "__main__":
