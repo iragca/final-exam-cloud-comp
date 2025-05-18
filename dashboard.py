@@ -1,6 +1,7 @@
 # dashboard.py
 
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import polars as pl
 import streamlit as st
 from wordcloud import WordCloud
@@ -16,7 +17,7 @@ WAREHOUSE = Warehouse(WAREHOUSE_DATABASE_URL)
 
 
 @st.cache_data
-def load_data():
+def load_data() -> tuple[pl.DataFrame]:
     sales = WAREHOUSE.get_table("sales_details")
     products = WAREHOUSE.get_table("prd_info")
     customers = WAREHOUSE.get_table("cust_info")
@@ -38,7 +39,7 @@ total_products = products.select("prd_id").n_unique()
 total_orders = sales.select("sls_ord_num").n_unique()
 total_revenue = sales.select("sls_sales").sum().item()
 
-formatted_revenue = format_revenue(total_revenue)
+formatted_revenue: str = format_revenue(total_revenue)
 
 # Format values
 formatted_customers = f"{total_customers:,}"
@@ -90,8 +91,6 @@ gender_counts = (
 )
 
 if gender_counts.shape[0] > 0:
-    import plotly.graph_objects as go
-
     fig = go.Figure(
         data=[
             go.Pie(
@@ -142,15 +141,15 @@ else:
 
 # --- Data explorer ---
 st.markdown("### **Explore Warehouse Tables**")
-selected_table = st.selectbox("Select a table to preview", tables)
+selected_table: str = st.selectbox("Select a table to preview", tables)
 
 
 @st.cache_data(show_spinner="Loading data...")
-def get_table_data(table_name: str):
+def get_table_data(table_name: str) -> pl.DataFrame:
     return WAREHOUSE.get_table(table_name)
 
 
 if selected_table:
-    df = get_table_data(selected_table)
+    df: pl.DataFrame = get_table_data(selected_table)
     st.subheader(f"`{selected_table}`")
     st.dataframe(df, use_container_width=True)
