@@ -69,4 +69,4 @@ Example: `uv run main.py start-streamlit --port 10000`
 
 | Command        | Options | Description |
 |----------------|--------|-------------|
-| start-streamlit| port: int - 8501, host: str = "0.0.0.0" | Start the Streamlit dashboard |
+| start-streamlit| port: int = 8501, host: str = "0.0.0.0" | Start the Streamlit dashboard |
