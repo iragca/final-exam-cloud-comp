@@ -49,7 +49,7 @@ uv add <package_name>
 uv run main.py <command>
 ```
 
-**With options:**
+**With options (Python scripts):**
 ```bash
 uv run main.py <command> --<option> <option_value>
 ```
