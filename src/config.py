@@ -13,7 +13,7 @@ INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 
 if not (PROJECT_ROOT / ".env").exists():
-    raise FileNotFoundError(f"Please create a .env file in the root directory ({PROJECT_ROOT})")
+    logger.error(FileNotFoundError(f"No .env file found in the root directory ({PROJECT_ROOT})"))
 
 load_dotenv(PROJECT_ROOT / ".env")
 STAGING_DATABASE_URL = os.getenv("STAGING_DATABASE_URL")
