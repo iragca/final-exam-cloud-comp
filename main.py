@@ -3,6 +3,7 @@ from pprint import pprint
 import polars as pl
 from tqdm import tqdm
 from typer import Typer
+import subprocess
 
 from src.config import (
     EXTERNAL_DATA_DIR,
@@ -172,7 +173,7 @@ def drop_warehouse():
 
 @cli.command()
 def start_streamlit():
-    pass
+    subprocess.run(["streamlit", "run", "dashboard.py"])
 
 
 if __name__ == "__main__":

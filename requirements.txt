@@ -6,4 +6,8 @@ pip
 python-dotenv
 tqdm
 typer
+subprocess
+streamlit
+plotly
+wordcloud
 -e .
