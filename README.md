@@ -19,6 +19,8 @@ my-project/
 │       ├── datastorage.py # Base "data storage" class
 │       ├── staging.py     # Staging functionalities class
 │       └── warehouse.py   # Warehouse functionalities class
+├── pyproject.toml         # Dependency management (preferred)
+├── requirements.txt       # Dependency management (old school)  
 ├── dashboard.py           # Streamlit app
 └── main.py                # CLI Tools
 ```
@@ -30,14 +32,19 @@ pip install uv
 ```
 
 # Setup
-Install dependencies
+Install dependencies. This creates a `.venv` in the same repo. Use this `.venv` to run notebooks.
 ```bash
 uv sync
+```
+Add a dependency. This adds a dependency to `pyproject.toml` and install it in the `.venv`.
+```bash
+uv add <package_name>
 ```
 
 # Command Line Tools
 
 **How to use:**
+`uv run` runs python scripts and tools using the packages/libraries in `.venv`.
 ```bash
 uv run main.py <command>
 ```
