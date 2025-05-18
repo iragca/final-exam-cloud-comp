@@ -1,18 +1,32 @@
 # dashboard.py
 
-import streamlit as st
+import matplotlib.pyplot as plt
 import polars as pl
+import streamlit as st
+from wordcloud import WordCloud
+
+from src.config import WAREHOUSE_DATABASE_URL
 from src.data import Warehouse
 from src.utils import format_revenue
-from src.config import WAREHOUSE_DATABASE_URL
 
 st.set_page_config(page_title="Warehouse Dashboard", layout="centered")
 
 # Load warehouse data
 WAREHOUSE = Warehouse(WAREHOUSE_DATABASE_URL)
-sales = WAREHOUSE.get_table("sales_details")
-products = WAREHOUSE.get_table("prd_info")
-customers = WAREHOUSE.get_table("cust_info")
+
+
+@st.cache_data
+def load_data():
+    sales = WAREHOUSE.get_table("sales_details")
+    products = WAREHOUSE.get_table("prd_info")
+    customers = WAREHOUSE.get_table("cust_info")
+    locations = WAREHOUSE.get_table("loc_a101")
+    tables = WAREHOUSE.get_table_names()
+
+    return sales, products, customers, locations, tables
+
+
+sales, products, customers, locations, tables = load_data()
 
 # --- KPIs ---
 st.title("Sales Dashboard")
@@ -30,7 +44,7 @@ formatted_revenue = format_revenue(total_revenue)
 formatted_customers = f"{total_customers:,}"
 formatted_products = f"{total_products:,}"
 formatted_orders = f"{total_orders:,}"
-formatted_revenue = format_revenue(total_revenue)
+formatted_revenue = f"₱{format_revenue(total_revenue)}"
 
 # Layout
 col1, col2, col3, col4 = st.columns(4)
@@ -78,17 +92,19 @@ gender_counts = (
 if gender_counts.shape[0] > 0:
     import plotly.graph_objects as go
 
-    fig = go.Figure(data=[
-        go.Pie(
-            labels=gender_counts["cst_gndr"].to_list(),
-            values=gender_counts["count"].to_list(),
-            hole=0.4,
-            textinfo="label+percent",
-            textposition="outside",  # Put labels outside the pie slices
-            showlegend=True,  # Optional: keeps the legend on the side
-            marker=dict(colors=["#060378", "#4c4eb5", "#8181cb"]),
-        )
-    ])
+    fig = go.Figure(
+        data=[
+            go.Pie(
+                labels=gender_counts["cst_gndr"].to_list(),
+                values=gender_counts["count"].to_list(),
+                hole=0.4,
+                textinfo="label+percent",
+                textposition="outside",  # Put labels outside the pie slices
+                showlegend=True,  # Optional: keeps the legend on the side
+                marker=dict(colors=["#060378", "#4c4eb5", "#8181cb"]),
+            )
+        ]
+    )
     fig.update_layout(margin=dict(t=20, b=20))
     st.plotly_chart(fig, use_container_width=True)
 else:
@@ -98,11 +114,6 @@ else:
 st.markdown("### **Which Countries Drive the Most Sales?**")
 st.caption("Visualizing the geographic footprint of our customers")
 
-from wordcloud import WordCloud
-import matplotlib.pyplot as plt
-
-# Load country data
-locations = WAREHOUSE.get_table("loc_a101")
 
 if "CNTRY" in locations.columns and locations.height > 0:
     # Count occurrences of each country
@@ -118,10 +129,7 @@ if "CNTRY" in locations.columns and locations.height > 0:
 
     # Generate word cloud
     wc = WordCloud(
-        width=800,
-        height=400,
-        background_color="white",
-        colormap="Blues"
+        width=800, height=400, background_color="white", colormap="Blues"
     ).generate_from_frequencies(country_freq)
 
     # Display in Streamlit
@@ -134,10 +142,15 @@ else:
 
 # --- Data explorer ---
 st.markdown("### **Explore Warehouse Tables**")
-tables = WAREHOUSE.get_table_names()
 selected_table = st.selectbox("Select a table to preview", tables)
 
+
+@st.cache_data(show_spinner="Loading data...")
+def get_table_data(table_name: str):
+    return WAREHOUSE.get_table(table_name)
+
+
 if selected_table:
-    df = WAREHOUSE.get_table(selected_table)
+    df = get_table_data(selected_table)
     st.subheader(f"`{selected_table}`")
     st.dataframe(df, use_container_width=True)
