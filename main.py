@@ -19,6 +19,16 @@ cli = Typer()
 
 @cli.command()
 def move_to_staging():
+    """
+    Moves data from external CRM and ERP source directories into the staging database.
+    This function reads CSV files from predefined CRM and ERP source directories,
+    loads them into DataFrames, and inserts them into corresponding tables in the
+    staging database. Progress is displayed using tqdm for both CRM and ERP tables.
+    Logs a success message upon completion.
+    Raises:
+        FileNotFoundError: If any of the source CSV files are missing.
+        Exception: If there is an error during data loading or insertion.
+    """
     SOURCE_CRM = EXTERNAL_DATA_DIR / "source_crm"
     SOURCE_ERP = EXTERNAL_DATA_DIR / "source_erp"
     STAGING = Staging(STAGING_DATABASE_URL)
@@ -48,6 +58,16 @@ def move_to_staging():
 
 @cli.command()
 def read_staging():
+    """
+    Reads all table names from the staging database, retrieves their schema information, and prints the details.
+    This function:
+    - Connects to the staging database using the `Staging` class and `STAGING_DATABASE_URL`.
+    - Retrieves a list of all table names in the staging database.
+    - For each table, fetches and prints its schema or metadata information using `get_table_info`.
+    - Outputs the table names, their count, and detailed information for each table.
+    Returns:
+        None
+    """
     STAGING = Staging(STAGING_DATABASE_URL)
     tables = STAGING.get_table_names()
     print("TABLES: ", tables, len(tables))
@@ -61,6 +81,13 @@ def read_staging():
 
 @cli.command()
 def drop_staging():
+    """
+    Drops all tables from the staging database.
+
+    This function initializes a connection to the staging database using the
+    configured `STAGING_DATABASE_URL`, drops all tables within the staging
+    environment, and logs a success message upon completion.
+    """
     STAGING = Staging(STAGING_DATABASE_URL)
     STAGING.drop_all_tables()
     logger.success("All tables in staging dropped successfully.")
@@ -68,6 +95,24 @@ def drop_staging():
 
 @cli.command()
 def move_to_data_warehouse():
+    """
+    Extracts data from staging tables, preprocesses it, and loads it into the data warehouse.
+    This function performs the following steps:
+    1. Connects to the staging and warehouse databases.
+    2. Retrieves tables from the staging database, including customer info, product info, sales details, and others.
+    3. Defines preprocessing functions for each table, which:
+        - Remove duplicate and null records.
+        - Cast columns to appropriate data types (e.g., categorical, date).
+        - Convert integer date representations to date objects where necessary.
+    4. Loads the cleaned and transformed data into the corresponding warehouse tables.
+    5. Logs a success message upon completion.
+    Assumes that the following are defined elsewhere:
+    - `Staging` and `Warehouse` classes for database connections.
+    - `STAGING_DATABASE_URL` and `WAREHOUSE_DATABASE_URL` for connection strings.
+    - `pl` (Polars) for DataFrame operations.
+    - `int_to_datetime` for converting integer dates.
+    - `logger` for logging.
+    """
     STAGING = Staging(STAGING_DATABASE_URL)
     WAREHOUSE = Warehouse(WAREHOUSE_DATABASE_URL)
 
@@ -153,6 +198,14 @@ def move_to_data_warehouse():
 
 @cli.command()
 def read_warehouse():
+    """
+    Reads and prints information about all tables in the warehouse.
+    This function connects to the warehouse using the global `WAREHOUSE_DATABASE_URL`,
+    retrieves the list of table names, and for each table, prints its name and detailed
+    information using pretty-print formatting.
+    Returns:
+        None
+    """
     WAREHOUSE = Warehouse(WAREHOUSE_DATABASE_URL)
     tables = WAREHOUSE.get_table_names()
     print("TABLES: ", tables, len(tables))
@@ -166,6 +219,12 @@ def read_warehouse():
 
 @cli.command()
 def drop_warehouse():
+    """
+    Drops all tables from the warehouse database.
+
+    This function initializes a Warehouse instance using the configured database URL,
+    removes all tables from the warehouse, and logs a success message upon completion.
+    """
     WAREHOUSE = Warehouse(WAREHOUSE_DATABASE_URL)
     WAREHOUSE.drop_all_tables()
     logger.success("All tables in warehouse dropped successfully.")
