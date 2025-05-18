@@ -36,10 +36,17 @@ uv sync
 
 # Command Line Tools
 
-How to use:
+**How to use:**
 ```bash
 uv run main.py <command>
 ```
+
+**With options:**
+```bash
+uv run main.py <command> --<option> <option_value>
+```
+
+Example: `uv run main.py start-streamlit --port 10000`
 
 ## Staging Commands
 
@@ -56,3 +63,9 @@ uv run main.py <command>
 | move-to-data-warehouse | Preprocess staging data and move to data warehouse |
 | read-warehouse   | Print table names, and column details to the terminal |
 | drop-warehouse   | Drop every table in the data warehouse |
+
+## Streamlit Commands
+
+| Command        | Options | Description |
+|----------------|--------|-------------|
+| start-streamlit| port: int - 8501, host: str = "0.0.0.0" | Start the Streamlit dashboard |
