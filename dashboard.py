@@ -3,6 +3,7 @@
 import streamlit as st
 import polars as pl
 from src.data import Warehouse
+from src.utils import format_revenue
 from src.config import WAREHOUSE_DATABASE_URL
 
 st.set_page_config(page_title="Warehouse Dashboard", layout="centered")
@@ -22,17 +23,6 @@ total_customers = customers.select("cst_id").n_unique()
 total_products = products.select("prd_id").n_unique()
 total_orders = sales.select("sls_ord_num").n_unique()
 total_revenue = sales.select("sls_sales").sum().item()
-
-# Format revenue as ₱29M, ₱3.2B, etc.
-def format_revenue(amount):
-    if amount >= 1_000_000_000:
-        return f"₱{amount / 1_000_000_000:.1f}B"
-    elif amount >= 1_000_000:
-        return f"₱{amount / 1_000_000:.0f}M"
-    elif amount >= 1_000:
-        return f"₱{amount / 1_000:.0f}K"
-    else:
-        return f"₱{amount}"
 
 formatted_revenue = format_revenue(total_revenue)
 
