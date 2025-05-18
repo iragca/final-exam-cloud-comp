@@ -3,6 +3,8 @@ import pathlib
 
 from dotenv import load_dotenv
 from loguru import logger
+from src.utils import check_env_variable
+
 
 PROJECT_ROOT = pathlib.Path(__file__).parent.parent.resolve()
 DATA_DIR = PROJECT_ROOT / "data"
@@ -19,15 +21,12 @@ load_dotenv(PROJECT_ROOT / ".env")
 STAGING_DATABASE_URL = os.getenv("STAGING_DATABASE_URL")
 WAREHOUSE_DATABASE_URL = os.getenv("WAREHOUSE_DATABASE_URL")
 
-
-def check_env_variable(var, var_name: str):
-    """Check if an environment variable is set."""
-    if var is None:
-        logger.error(EnvironmentError(f"Environment variable {var_name} is not set."))
-
-
-check_env_variable(STAGING_DATABASE_URL, "STAGING_DATABASE_URL")
-check_env_variable(WAREHOUSE_DATABASE_URL, "WAREHOUSE_DATABASE_URL")
+try:
+    check_env_variable(STAGING_DATABASE_URL, "STAGING_DATABASE_URL", important=True)
+    check_env_variable(WAREHOUSE_DATABASE_URL, "WAREHOUSE_DATABASE_URL", important=True)
+except EnvironmentError as e:
+    logger.error(e)
+    raise
 
 
 logger.info(f"PROJECT_ROOT: {PROJECT_ROOT}")
