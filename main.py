@@ -1,9 +1,9 @@
+import subprocess
 from pprint import pprint
 
 import polars as pl
 from tqdm import tqdm
 from typer import Typer
-import subprocess
 
 from src.config import (
     EXTERNAL_DATA_DIR,
