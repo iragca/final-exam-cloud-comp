@@ -21,6 +21,7 @@ my-project/
 │       └── warehouse.py   # Warehouse functionalities class
 ├── pyproject.toml         # Dependency management (preferred)
 ├── requirements.txt       # Dependency management (old school)  
+├── Dockerfile             # Docker build file for the instance at Render.com
 ├── dashboard.py           # Streamlit app
 └── main.py                # CLI Tools
 ```
