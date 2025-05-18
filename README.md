@@ -3,6 +3,8 @@
 # Repository Structure
 ```bash
 my-project/
+├── .streamlit/
+│   ├── config.toml        # Streamlit customization
 ├── data/               
 │   ├── external/          # External Data
 |  ...                      
@@ -16,6 +18,7 @@ my-project/
 │       ├── datastorage.py # Base "data storage" class
 │       ├── staging.py     # Staging functionalities class
 │       └── warehouse.py   # Warehouse functionalities class
+├── dashboard.py           # Streamlit app
 └── main.py                # CLI Tools
 ```
 
