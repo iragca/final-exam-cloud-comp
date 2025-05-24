@@ -159,6 +159,7 @@ def move_to_data_warehouse():
         return (
             sales_details.unique()
             .drop_nulls()
+            .drop("sls_price")
             .with_columns(
                 [
                     pl.col("sls_order_dt").map_elements(int_to_datetime, return_dtype=pl.Date),
@@ -177,6 +178,7 @@ def move_to_data_warehouse():
             .with_columns(
                 [pl.col("CID").alias("cid"), pl.col("BDATE").cast(pl.Date).alias("birthdate")]
             )
+            .drop(["CID", "BDATE"])
         )
 
     @WAREHOUSE.preprocess_and_load()
@@ -200,12 +202,12 @@ def move_to_data_warehouse():
             .drop_nulls()
             .with_columns(
                 [
+                    pl.col("ID").alias("id"),
+                    pl.col("CAT").alias("cat"),
+                    pl.col("SUBCAT").alias("subcat"),
                     pl.col("MAINTENANCE")
                     .map_elements(convert_to_boolean, return_dtype=pl.Boolean)
                     .alias("maintenance"),
-                    pl.col("CAT").alias("cat"),
-                    pl.col("SUBCAT").alias("subcat"),
-                    pl.col("ID").alias("id"),
                 ]
             )
             .drop(["ID", "CAT", "SUBCAT", "MAINTENANCE"])
