@@ -2,12 +2,15 @@ import polars as pl
 from sqlalchemy import create_engine, inspect, text, MetaData
 
 from src.config import logger
+from src.data.schema import Base
 
 
 class DataStorage:
     def __init__(self, url):
         self.engine = create_engine(url, client_encoding="utf8")
         self.inspector = inspect(self.engine)
+
+        Base.metadata.create_all(self.engine)
 
     def get_table_names(self):
         try:
@@ -46,7 +49,7 @@ class DataStorage:
                 table.write_database(
                     table_name=table_name.lower(),
                     connection=connection,
-                    if_table_exists="replace",
+                    if_table_exists="append",
                 )
 
         except Exception as e:
