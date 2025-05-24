@@ -22,7 +22,7 @@ STAGING_DATABASE_URL = os.getenv("STAGING_DATABASE_URL")
 WAREHOUSE_DATABASE_URL = os.getenv("WAREHOUSE_DATABASE_URL")
 
 try:
-    check_env_variable(STAGING_DATABASE_URL, "STAGING_DATABASE_URL", important=True)
+    check_env_variable(STAGING_DATABASE_URL, "STAGING_DATABASE_URL", important=False)
     check_env_variable(WAREHOUSE_DATABASE_URL, "WAREHOUSE_DATABASE_URL", important=True)
 except EnvironmentError as e:
     logger.error(e)
