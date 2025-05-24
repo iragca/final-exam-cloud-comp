@@ -12,7 +12,7 @@ from src.config import (
     logger,
 )
 from src.data import Staging, Warehouse
-from src.utils import int_to_datetime, remove_dash, grab_product_category, convert_to_boolean
+from src.utils import int_to_datetime, grab_product_category, convert_to_boolean
 
 cli = Typer()
 
@@ -173,7 +173,8 @@ def move_to_data_warehouse():
         return (
             cust_az12.unique()
             .drop_nulls()
-            .with_columns([pl.col("GEN").cast(pl.Categorical), pl.col("BDATE").cast(pl.Date)])
+            .drop(["GEN"])
+            .with_columns([pl.col("BDATE").cast(pl.Date)])
         )
 
     @WAREHOUSE.preprocess_and_load()
@@ -183,7 +184,7 @@ def move_to_data_warehouse():
             .drop_nulls()
             .with_columns(
                 [
-                    pl.col("CID").map_elements(remove_dash, return_dtype=pl.Utf8).alias("CID"),
+                    pl.col("CID").str.replace_all('-', ''),
                 ]
             )
         )
