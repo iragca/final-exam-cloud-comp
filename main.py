@@ -12,7 +12,7 @@ from src.config import (
     logger,
 )
 from src.data import Staging, Warehouse
-from src.utils import int_to_datetime, remove_dash
+from src.utils import int_to_datetime, remove_dash, grab_product_category
 
 cli = Typer()
 
@@ -147,6 +147,9 @@ def move_to_data_warehouse():
                     pl.col("prd_line").cast(pl.Categorical),
                     pl.col("prd_start_dt").cast(pl.Date),
                     pl.col("prd_end_dt").cast(pl.Date),
+                    pl.col("prd_key")
+                    .map_elements(grab_product_category, return_dtype=pl.Utf8)
+                    .alias("category_id"),
                 ]
             )
         )
@@ -186,7 +189,9 @@ def move_to_data_warehouse():
             .drop_nulls()
             .with_columns(
                 [
-                    pl.col("CID").map_elements(lambda x: remove_dash(x), return_dtype=pl.Utf8).alias("CID"),
+                    pl.col("CID")
+                    .map_elements(lambda x: remove_dash(x), return_dtype=pl.Utf8)
+                    .alias("CID"),
                 ]
             )
         )
