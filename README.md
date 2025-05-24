@@ -1,6 +1,8 @@
 <h1 align="center"> Final Exam Cloud Comp </h1>
 <h3 align="center"><a href="https://final-exam-cloud-comp-streamlit.onrender.com">Streamlit App</a><h3>
 
+The data dictionary can be found [here](https://github.com/iragca/final-exam-cloud-comp/blob/master/references/data-dictionary.md).
+
 # Repository Structure
 ```bash
 my-project/
@@ -19,6 +21,11 @@ my-project/
 │       ├── datastorage.py # Base "data storage" class
 │       ├── staging.py     # Staging functionalities class
 │       └── warehouse.py   # Warehouse functionalities class
+├── references/
+│   └── data-dictionary.md/ # Data Dictionary for the database
+├── pyproject.toml         # Dependency management (preferred)
+├── requirements.txt       # Dependency management (old school)  
+├── Dockerfile             # Docker build file for the instance at Render.com
 ├── dashboard.py           # Streamlit app
 └── main.py                # CLI Tools
 ```
@@ -30,19 +37,24 @@ pip install uv
 ```
 
 # Setup
-Install dependencies
+Install dependencies. This creates a `.venv` in the same repo. Use this `.venv` to run notebooks.
 ```bash
 uv sync
+```
+Add a dependency. This adds a dependency to `pyproject.toml` and install it in the `.venv`.
+```bash
+uv add <package_name>
 ```
 
 # Command Line Tools
 
 **How to use:**
+`uv run` runs python scripts and tools using the packages/libraries in `.venv`.
 ```bash
 uv run main.py <command>
 ```
 
-**With options:**
+**With options (Python scripts):**
 ```bash
 uv run main.py <command> --<option> <option_value>
 ```
@@ -69,4 +81,4 @@ Example: `uv run main.py start-streamlit --port 10000`
 
 | Command        | Options | Description |
 |----------------|--------|-------------|
-| start-streamlit| port: int - 8501, host: str = "0.0.0.0" | Start the Streamlit dashboard |
+| start-streamlit| port: int = 8501, host: str = "0.0.0.0" | Start the Streamlit dashboard |

@@ -1,13 +1,30 @@
 import polars as pl
-from sqlalchemy import create_engine, inspect, text, MetaData
+from sqlalchemy import create_engine, inspect, text
+from tqdm import tqdm
 
 from src.config import logger
+from src.data.schema import Base
 
 
 class DataStorage:
-    def __init__(self, url):
+    def __init__(self, url, enforce_schema: bool = False):
         self.engine = create_engine(url, client_encoding="utf8")
         self.inspector = inspect(self.engine)
+
+        if enforce_schema:
+            Base.metadata.create_all(self.engine)
+
+    def sql(self, query: str):
+        """
+        Execute a SQL query on the database.
+        """
+        try:
+            with self.engine.connect() as connection:
+                result = connection.execute(text(query))
+                return pl.DataFrame(result.fetchall())
+        except Exception as e:
+            logger.error(f"Error executing SQL query: {e}")
+            return None
 
     def get_table_names(self):
         try:
@@ -46,7 +63,7 @@ class DataStorage:
                 table.write_database(
                     table_name=table_name.lower(),
                     connection=connection,
-                    if_table_exists="replace",
+                    if_table_exists="append",
                 )
 
         except Exception as e:
@@ -69,9 +86,16 @@ class DataStorage:
         Delete all tables from the staging database.
         """
         try:
-            meta = MetaData()
-            meta.reflect(bind=self.engine)
-            meta.drop_all(bind=self.engine)
+            tables = self.get_table_names()
+            if not tables:
+                logger.warning("No tables found to delete.")
+                return
+
+            with self.engine.connect() as connection:
+                for table in tqdm(tables):
+                    connection.execute(text(f"""DROP TABLE IF EXISTS "{table}" CASCADE"""))
+                    connection.commit()
+
             logger.success("All tables deleted successfully.")
         except Exception as e:
             logger.error(f"Error deleting all tables: {e}")

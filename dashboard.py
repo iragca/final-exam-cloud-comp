@@ -114,17 +114,17 @@ st.markdown("### **Which Countries Drive the Most Sales?**")
 st.caption("Visualizing the geographic footprint of our customers")
 
 
-if "CNTRY" in locations.columns and locations.height > 0:
+if "country" in locations.columns and locations.height > 0:
     # Count occurrences of each country
     country_counts = (
-        locations.filter(pl.col("CNTRY").is_not_null())
-        .group_by("CNTRY")
-        .agg(pl.count("CNTRY").alias("count"))
+        locations.filter(pl.col("country").is_not_null())
+        .group_by("country")
+        .agg(pl.count("country").alias("count"))
         .to_pandas()
     )
 
     # Create dictionary for word cloud
-    country_freq = dict(zip(country_counts["CNTRY"], country_counts["count"]))
+    country_freq = dict(zip(country_counts["country"], country_counts["count"]))
 
     # Generate word cloud
     wc = WordCloud(

@@ -4,8 +4,8 @@ from src.config import logger
 
 
 class Warehouse(DataStorage):
-    def __init__(self, url):
-        super().__init__(url)
+    def __init__(self, url, enforce_schema: bool = False):
+        super().__init__(url, enforce_schema)
 
     def preprocess_and_load(self):
         """

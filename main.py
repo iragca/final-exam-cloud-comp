@@ -12,7 +12,7 @@ from src.config import (
     logger,
 )
 from src.data import Staging, Warehouse
-from src.utils import int_to_datetime
+from src.utils import int_to_datetime, grab_product_category, convert_to_boolean
 
 cli = Typer()
 
@@ -147,6 +147,9 @@ def move_to_data_warehouse():
                     pl.col("prd_line").cast(pl.Categorical),
                     pl.col("prd_start_dt").cast(pl.Date),
                     pl.col("prd_end_dt").cast(pl.Date),
+                    pl.col("prd_key")
+                    .map_elements(grab_product_category, return_dtype=pl.Utf8)
+                    .alias("category_id"),
                 ]
             )
         )
@@ -156,17 +159,12 @@ def move_to_data_warehouse():
         return (
             sales_details.unique()
             .drop_nulls()
+            .drop("sls_price")
             .with_columns(
                 [
-                    pl.col("sls_order_dt").map_elements(
-                        lambda x: int_to_datetime(x), return_dtype=pl.Date
-                    ),
-                    pl.col("sls_ship_dt").map_elements(
-                        lambda x: int_to_datetime(x), return_dtype=pl.Date
-                    ),
-                    pl.col("sls_due_dt").map_elements(
-                        lambda x: int_to_datetime(x), return_dtype=pl.Date
-                    ),
+                    pl.col("sls_order_dt").map_elements(int_to_datetime, return_dtype=pl.Date),
+                    pl.col("sls_ship_dt").map_elements(int_to_datetime, return_dtype=pl.Date),
+                    pl.col("sls_due_dt").map_elements(int_to_datetime, return_dtype=pl.Date),
                 ]
             )
         ).drop_nulls()
@@ -176,16 +174,44 @@ def move_to_data_warehouse():
         return (
             cust_az12.unique()
             .drop_nulls()
-            .with_columns([pl.col("GEN").cast(pl.Categorical), pl.col("BDATE").cast(pl.Date)])
+            .drop(["GEN"])
+            .with_columns(
+                [pl.col("CID").alias("cid"), pl.col("BDATE").cast(pl.Date).alias("birthdate")]
+            )
+            .drop(["CID", "BDATE"])
         )
 
     @WAREHOUSE.preprocess_and_load()
     def process_loc_a101(loc_a101: pl.DataFrame, table_name: str = "loc_a101"):
-        return loc_a101.unique().drop_nulls()
+        return (
+            loc_a101.unique()
+            .drop_nulls()
+            .with_columns(
+                [
+                    pl.col("CID").str.replace_all("-", "").alias("cid"),
+                    pl.col("CNTRY").alias("country"),
+                ]
+            )
+            .drop(["CNTRY", "CID"])
+        )
 
     @WAREHOUSE.preprocess_and_load()
     def process_px_cat_g1v2(px_cat_g1v2: pl.DataFrame, table_name: str = "px_cat_g1v2"):
-        return px_cat_g1v2.unique().drop_nulls()
+        return (
+            px_cat_g1v2.unique()
+            .drop_nulls()
+            .with_columns(
+                [
+                    pl.col("ID").alias("id"),
+                    pl.col("CAT").alias("cat"),
+                    pl.col("SUBCAT").alias("subcat"),
+                    pl.col("MAINTENANCE")
+                    .map_elements(convert_to_boolean, return_dtype=pl.Boolean)
+                    .alias("maintenance"),
+                ]
+            )
+            .drop(["ID", "CAT", "SUBCAT", "MAINTENANCE"])
+        )
 
     process_cust_info(cust_info, table_name="cust_info")
     process_prd_info(prd_info, table_name="prd_info")
