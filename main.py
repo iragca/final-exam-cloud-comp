@@ -12,7 +12,7 @@ from src.config import (
     logger,
 )
 from src.data import Staging, Warehouse
-from src.utils import int_to_datetime
+from src.utils import int_to_datetime, remove_dash
 
 cli = Typer()
 
@@ -181,7 +181,15 @@ def move_to_data_warehouse():
 
     @WAREHOUSE.preprocess_and_load()
     def process_loc_a101(loc_a101: pl.DataFrame, table_name: str = "loc_a101"):
-        return loc_a101.unique().drop_nulls()
+        return (
+            loc_a101.unique()
+            .drop_nulls()
+            .with_columns(
+                [
+                    pl.col("CID").map_elements(lambda x: remove_dash(x), return_dtype=pl.Utf8).alias("CID"),
+                ]
+            )
+        )
 
     @WAREHOUSE.preprocess_and_load()
     def process_px_cat_g1v2(px_cat_g1v2: pl.DataFrame, table_name: str = "px_cat_g1v2"):
