@@ -13,6 +13,18 @@ class DataStorage:
 
         Base.metadata.create_all(self.engine)
 
+    def sql(self, query: str):
+        """
+        Execute a SQL query on the database.
+        """
+        try:
+            with self.engine.connect() as connection:
+                result = connection.execute(text(query))
+                return pl.DataFrame(result.fetchall())
+        except Exception as e:
+            logger.error(f"Error executing SQL query: {e}")
+            return None
+
     def get_table_names(self):
         try:
             with self.engine.connect():
