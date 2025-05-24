@@ -161,15 +161,9 @@ def move_to_data_warehouse():
             .drop_nulls()
             .with_columns(
                 [
-                    pl.col("sls_order_dt").map_elements(
-                        lambda x: int_to_datetime(x), return_dtype=pl.Date
-                    ),
-                    pl.col("sls_ship_dt").map_elements(
-                        lambda x: int_to_datetime(x), return_dtype=pl.Date
-                    ),
-                    pl.col("sls_due_dt").map_elements(
-                        lambda x: int_to_datetime(x), return_dtype=pl.Date
-                    ),
+                    pl.col("sls_order_dt").map_elements(int_to_datetime, return_dtype=pl.Date),
+                    pl.col("sls_ship_dt").map_elements(int_to_datetime, return_dtype=pl.Date),
+                    pl.col("sls_due_dt").map_elements(int_to_datetime, return_dtype=pl.Date),
                 ]
             )
         ).drop_nulls()
@@ -190,7 +184,7 @@ def move_to_data_warehouse():
             .with_columns(
                 [
                     pl.col("CID")
-                    .map_elements(lambda x: remove_dash(x), return_dtype=pl.Utf8)
+                    .map_elements(remove_dash, return_dtype=pl.Utf8)
                     .alias("CID"),
                 ]
             )
