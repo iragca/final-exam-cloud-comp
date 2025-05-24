@@ -12,7 +12,7 @@ from src.config import (
     logger,
 )
 from src.data import Staging, Warehouse
-from src.utils import int_to_datetime, remove_dash, grab_product_category
+from src.utils import int_to_datetime, remove_dash, grab_product_category, convert_to_boolean
 
 cli = Typer()
 
@@ -183,16 +183,24 @@ def move_to_data_warehouse():
             .drop_nulls()
             .with_columns(
                 [
-                    pl.col("CID")
-                    .map_elements(remove_dash, return_dtype=pl.Utf8)
-                    .alias("CID"),
+                    pl.col("CID").map_elements(remove_dash, return_dtype=pl.Utf8).alias("CID"),
                 ]
             )
         )
 
     @WAREHOUSE.preprocess_and_load()
     def process_px_cat_g1v2(px_cat_g1v2: pl.DataFrame, table_name: str = "px_cat_g1v2"):
-        return px_cat_g1v2.unique().drop_nulls()
+        return (
+            px_cat_g1v2.unique()
+            .drop_nulls()
+            .with_columns(
+                [
+                    pl.col("MAINTENANCE").map_elements(
+                        convert_to_boolean, return_dtype=pl.Boolean
+                    ),
+                ]
+            )
+        )
 
     process_cust_info(cust_info, table_name="cust_info")
     process_prd_info(prd_info, table_name="prd_info")
