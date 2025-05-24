@@ -1,5 +1,6 @@
 import polars as pl
-from sqlalchemy import create_engine, inspect, text, MetaData
+from sqlalchemy import create_engine, inspect, text
+from tqdm import tqdm
 
 from src.config import logger
 from src.data.schema import Base
@@ -72,9 +73,15 @@ class DataStorage:
         Delete all tables from the staging database.
         """
         try:
-            meta = MetaData()
-            meta.reflect(bind=self.engine)
-            meta.drop_all(bind=self.engine)
+            tables = self.get_table_names()
+            if not tables:
+                logger.warning("No tables found to delete.")
+                return
+
+            with self.engine.connect() as connection:
+                for table in tqdm(tables):
+                    connection.execute(text(f"DROP TABLE IF EXISTS {table} CASCADE"))
+
             logger.success("All tables deleted successfully.")
         except Exception as e:
             logger.error(f"Error deleting all tables: {e}")
