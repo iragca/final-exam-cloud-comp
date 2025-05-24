@@ -7,11 +7,12 @@ from src.data.schema import Base
 
 
 class DataStorage:
-    def __init__(self, url):
+    def __init__(self, url, enforce_schema: bool = False):
         self.engine = create_engine(url, client_encoding="utf8")
         self.inspector = inspect(self.engine)
 
-        Base.metadata.create_all(self.engine)
+        if enforce_schema:
+            Base.metadata.create_all(self.engine)
 
     def sql(self, query: str):
         """
@@ -92,7 +93,8 @@ class DataStorage:
 
             with self.engine.connect() as connection:
                 for table in tqdm(tables):
-                    connection.execute(text(f"DROP TABLE IF EXISTS {table} CASCADE"))
+                    connection.execute(text(f"""DROP TABLE IF EXISTS "{table}" CASCADE"""))
+                    connection.commit()
 
             logger.success("All tables deleted successfully.")
         except Exception as e:
