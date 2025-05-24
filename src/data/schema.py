@@ -30,7 +30,7 @@ class PrdInfo(Base):
     prd_line = Column(String)
     prd_start_dt = Column(Date)
     prd_end_dt = Column(Date)
-    category_id = Column(Integer, ForeignKey("px_cat_g1v2.ID"))
+    category_id = Column(String, ForeignKey("px_cat_g1v2.id"))
 
     orders = relationship("SalesDetails", back_populates="product")
     category = relationship("PxCatG1v2", back_populates="products")
@@ -39,10 +39,10 @@ class PrdInfo(Base):
 class PxCatG1v2(Base):
     __tablename__ = "px_cat_g1v2"
 
-    ID = Column(Integer, primary_key=True)
-    CAT = Column(String)
-    SUBCAT = Column(String)
-    MAINTENANCE = Column(String)
+    id = Column(String, primary_key=True)
+    cat = Column(String)
+    subcat = Column(String)
+    maintenance = Column(String)
 
     products = relationship("PrdInfo", back_populates="category")
 
@@ -67,8 +67,8 @@ class SalesDetails(Base):
 class CustAz12(Base):
     __tablename__ = "cust_az12"
 
-    CID = Column(String, ForeignKey("cust_info.cst_key"), primary_key=True)
-    BDATE = Column(Date)
+    cid = Column(String, ForeignKey("cust_info.cst_key"), primary_key=True)
+    birthdate = Column(Date)
 
     cust = relationship("CustInfo", back_populates="legacy_records")
     locations = relationship("LocA101", back_populates="customer_aux")
@@ -77,7 +77,7 @@ class CustAz12(Base):
 class LocA101(Base):
     __tablename__ = "loc_a101"
 
-    CID = Column(String, ForeignKey("cust_info.cst_key"), primary_key=True)
-    CNTRY = Column(String)
+    cid = Column(String, ForeignKey("cust_info.cst_key"), primary_key=True)
+    country = Column(String)
 
     customer_aux = relationship("CustAz12", back_populates="locations")

@@ -174,7 +174,9 @@ def move_to_data_warehouse():
             cust_az12.unique()
             .drop_nulls()
             .drop(["GEN"])
-            .with_columns([pl.col("BDATE").cast(pl.Date)])
+            .with_columns(
+                [pl.col("CID").alias("cid"), pl.col("BDATE").cast(pl.Date).alias("birthdate")]
+            )
         )
 
     @WAREHOUSE.preprocess_and_load()
@@ -184,9 +186,11 @@ def move_to_data_warehouse():
             .drop_nulls()
             .with_columns(
                 [
-                    pl.col("CID").str.replace_all('-', ''),
+                    pl.col("CID").str.replace_all("-", "").alias("cid"),
+                    pl.col("CNTRY").alias("country"),
                 ]
             )
+            .drop(["CNTRY", "CID"])
         )
 
     @WAREHOUSE.preprocess_and_load()
@@ -196,11 +200,15 @@ def move_to_data_warehouse():
             .drop_nulls()
             .with_columns(
                 [
-                    pl.col("MAINTENANCE").map_elements(
-                        convert_to_boolean, return_dtype=pl.Boolean
-                    ),
+                    pl.col("MAINTENANCE")
+                    .map_elements(convert_to_boolean, return_dtype=pl.Boolean)
+                    .alias("maintenance"),
+                    pl.col("CAT").alias("cat"),
+                    pl.col("SUBCAT").alias("subcat"),
+                    pl.col("ID").alias("id"),
                 ]
             )
+            .drop(["ID", "CAT", "SUBCAT", "MAINTENANCE"])
         )
 
     process_cust_info(cust_info, table_name="cust_info")
