@@ -1,6 +1,8 @@
 <h1 align="center"> Final Exam Cloud Comp </h1>
 <h3 align="center"><a href="https://final-exam-cloud-comp-streamlit.onrender.com">Streamlit App</a><h3>
 
+The data dictionary can be found [here](https://github.com/iragca/final-exam-cloud-comp/blob/master/references/data-dictionary.md).
+
 # Repository Structure
 ```bash
 my-project/
@@ -19,6 +21,8 @@ my-project/
 │       ├── datastorage.py # Base "data storage" class
 │       ├── staging.py     # Staging functionalities class
 │       └── warehouse.py   # Warehouse functionalities class
+├── references/
+│   └── data-dictionary.md/ # Data Dictionary for the database
 ├── pyproject.toml         # Dependency management (preferred)
 ├── requirements.txt       # Dependency management (old school)  
 ├── Dockerfile             # Docker build file for the instance at Render.com

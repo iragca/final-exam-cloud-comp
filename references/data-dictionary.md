@@ -54,7 +54,7 @@ Records individual sales transactions.
 | `sls_due_dt`   | date   | Due date                          |
 | `sls_sales`    | bigint | Total sales amount                |
 | `sls_quantity` | bigint | Quantity sold                     |
-| `sls_price`    | bigint | Unit price                        |
+| `sls_price`    | bigint | redundant column of sls_sales     |
 
 ---
 
